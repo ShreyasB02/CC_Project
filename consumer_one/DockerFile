@@ -1,0 +1,6 @@
+# specify ubuntu version (same as the one I'm using)
+FROM ubuntu:22.04 
+FROM python:3.10.6
+RUN apt-get update
+RUN pip install -r requirements.txt
+CMD ["python","healthcheck.py"]

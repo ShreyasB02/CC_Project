@@ -23,6 +23,7 @@ def main():
         cursor.execute("SELECT * FROM student") #create student column in db
         records = cursor.fetchall()
         response= json.dumps(records)
+        #if retrieved data to be published
         ch.basic_publish(
             exchange='',
             routing_key=properties.reply_to,
