@@ -31,6 +31,7 @@ def main():
         connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
         channel = connection.channel()
         channel.queue_declare(queue='read_database')
+        #handle 1 message at a time:
         channel.basic_qos(prefetch_count=1)
         channel.basic_consume(queue='read_database', on_message_callback=callback, auto_ack=True)  #ACk
         channel.start_consuming()
