@@ -8,3 +8,10 @@ docker network inspect rabbitmq_net
 
 # to list all the python packages that are there in the system
 pip freeze > requirements.txt
+
+# to create a common network for all the microservices:
+docker network create mynetwork
+
+
+
+#mysql docker image:
