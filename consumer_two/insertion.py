@@ -22,7 +22,8 @@ def main():
     cursor = db.cursor()
 
     def insertRecord(data): # data taken from json(?)
-        
+
 
     def callback(ch,method,properties,body):
+        
 
