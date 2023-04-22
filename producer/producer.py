@@ -33,15 +33,29 @@ def health_check():
 def insert_record():
     # Get the data from the request
     data = request.get_json()
-    
+    srn = data.get('SRN')
+    name = data.get('name')
+    section = data.get('section')
+
+    if not all([srn, name, section]):
+        return 'Missing fields: SRN, name, section', 400
+
     # Send a message to the insert_record queue
     message = {'message': 'Insert Record', 'data': data}
     channel.basic_publish(exchange='',
                           routing_key='insert_record',
                           body=json.dumps(message))
     return 'Record has been inserted'
-
-@app.route('/delete_record/<record_id>', methods=['DELETE'])
+    
+# @app.route('/delete_record/<record_id>', methods=['DELETE'])
+# def delete_record(record_id):
+#     # Send a message to the delete_record queue
+#     message = {'message': 'Delete Record', 'record_id': record_id}
+#     channel.basic_publish(exchange='',
+#                           routing_key='delete_record',
+#                           body=json.dumps(message))
+#     return f'Record with id {record_id} has been deleted'
+@app.route('/delete_record/<string:record_id>', methods=['GET'])
 def delete_record(record_id):
     # Send a message to the delete_record queue
     message = {'message': 'Delete Record', 'record_id': record_id}
