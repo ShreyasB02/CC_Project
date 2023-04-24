@@ -53,8 +53,8 @@ services:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_USER=guest
       - RABBITMQ_PASS=guest
-    volumes:
-      - ./consumer_one:/app
+    # volumes:
+    #   - ./consumer_one:/app
     # working_dir: /consumer_one
     depends_on:
       - mysql
