@@ -19,7 +19,8 @@ def main():
     #     database= "cc_student"
     #     )
     # cursor =db.cursor()
-    client = MongoClient("mongodb://mongodb:27017")
+    connectionstr="mongodb+srv://shreyas14902:<password>@cc-cluster.kdd2lot.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(connectionstr)
 
     db = client.StudentManagement
     collection = db.students
@@ -41,7 +42,7 @@ def main():
     channel = connection.channel()
     channel.queue_declare(queue='read_database')
         #handle 1 message at a time:
-    channel.basic_qos(prefetch_count=1)
+    #channel.basic_qos(prefetch_count=1)
     channel.basic_consume(queue='read_database', on_message_callback=callback, auto_ack=True)  #ACk
     channel.start_consuming()
 

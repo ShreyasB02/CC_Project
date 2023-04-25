@@ -21,7 +21,8 @@ def main():
     # cursor =db.cursor()
 
     # mongo:
-    client = MongoClient("mongodb://mongodb:27017")
+    connectionstr="mongodb+srv://shreyas14902:<password>@cc-cluster.kdd2lot.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(connectionstr)
 
     db = client.StudentManagement
     collection = db.students
@@ -43,10 +44,10 @@ def main():
         print("Deleted Details: ", list(collection.delete_one(data)), flush=True)
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq')) # give the network ip for the rabbitmq image
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq')) # give the network ip for the rabbitmq image
     channel = connection.channel()
     channel.queue_declare(queue='delete_record')
-    channel.basic_qos(prefetch_count=1)
+    #channel.basic_qos(prefetch_count=1)
     channel.basic_consume(queue='delete_record', on_message_callback=callback)
     print('Waiting for messages. To exit press CTRL+C')
     channel.start_consuming()     

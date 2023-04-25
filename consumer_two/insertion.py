@@ -13,11 +13,11 @@ import sys,os
 from pymongo import MongoClient
 
 def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
     channel = connection.channel()
     channel.queue_declare(queue='insert_record')
-
-    client = MongoClient("mongodb://mongodb:27017")
+    connectionstr="mongodb+srv://shreyas14902:<password>@cc-cluster.kdd2lot.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(connectionstr)
 
     db = client.StudentManagement
     collection = db.students
@@ -48,7 +48,7 @@ def main():
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
     # Set up consumer to take only one message at a time
-    channel.basic_qos(prefetch_count=1)
+    #channel.basic_qos(prefetch_count=1)
 
     # Start listening for incoming messages on the insert_record queue
     channel.basic_consume(queue='insert_record', on_message_callback=callback)

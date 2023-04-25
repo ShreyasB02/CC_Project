@@ -1,9 +1,9 @@
-version: '3'
+version: '3.11'
 
 services:
   rabbitmq:
     container_name: "rabbitmq"
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:3-management
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -11,11 +11,11 @@ services:
     networks:
       - rabbitmq_net
     ports:
+      - "5672:5672"
       - "15672:15672"
-      - "5672:5672"
-    expose:
-      - "5672:5672"
-      - "15672:15672"  
+    # expose:
+    #   - "5672:5672"
+    #   - "15672:15672"  
 
     restart: always
 
@@ -26,8 +26,8 @@ services:
     restart: always
     ports:
       - "27017:27017"
-    expose:
-      - "27017:27017" 
+    # expose:
+    #   - "27017:27017" 
     networks:
       - my_network
 
@@ -47,15 +47,15 @@ services:
   #     - my_network
   producer:
     build: ./producer    
-    volumes:
-      - ./producer:/app 
-    working_dir: /producer
+    # volumes:
+    #   - ./producer:/app 
+    # working_dir: /producer
     depends_on:
       - rabbitmq  
     ports:
       - "5050:5050"
-    expose:
-      - "5050:5050"  
+    # expose:
+    #   - "5050:5050"  
     networks:
       - my_network
       - rabbitmq_net
@@ -63,10 +63,10 @@ services:
          
   consumer_one:
     build: ./consumer_one
-    environment:
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_USER=guest
-      - RABBITMQ_PASS=guest
+    # environment:
+    #   - RABBITMQ_HOST=rabbitmq
+    #   - RABBITMQ_USER=guest
+    #   - RABBITMQ_PASS=guest
     # volumes:
     #   - ./consumer_one:/app
     # working_dir: /consumer_one
@@ -78,10 +78,10 @@ services:
 
   consumer_two:
     build: ./consumer_two
-    environment:
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_USER=guest
-      - RABBITMQ_PASS=guest
+    # environment:
+    #   - RABBITMQ_HOST=rabbitmq
+    #   - RABBITMQ_USER=guest
+    #   - RABBITMQ_PASS=guest
     # volumes:
     #   - ./consumer_two:/app
     # working_dir: /consumer_two  
@@ -93,10 +93,10 @@ services:
 
   consumer_three:
     build: ./consumer_three
-    environment:
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_USER=guest
-      - RABBITMQ_PASS=guest
+    # environment:
+    #   - RABBITMQ_HOST=rabbitmq
+    #   - RABBITMQ_USER=guest
+    #   - RABBITMQ_PASS=guest
     # volumes:
     #   - ./consumer_three:/consumer_three
     # working_dir: /consumer_three
@@ -108,10 +108,10 @@ services:
 
   consumer_four:
     build: ./consumer_four
-    environment:
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_USER=guest
-      - RABBITMQ_PASS=guest
+    # environment:
+    #   - RABBITMQ_HOST=rabbitmq
+    #   - RABBITMQ_USER=guest
+    #   - RABBITMQ_PASS=guest
     # volumes:
     #   - ./consumer_four:/app
     # working_dir: /consumer_four  
