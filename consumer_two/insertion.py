@@ -9,43 +9,43 @@ This consumer must acknowledge that the health-check message has been listened t
 
 import json
 import pika
-import mysql.connector
-
+import sys,os
+from pymongo import MongoClient
 
 def main():
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()
     channel.queue_declare(queue='insert_record')
 
-    # Set up MySQL connection
-    db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="password",
-    database="cc_student"
-    )
-    mysql_cursor = db.cursor()
+    client = MongoClient("mongodb://mongodb:27017")
 
+    db = client.StudentManagement
+    collection = db.students
+    
     # Function to insert a record into the database
     def insert_record(data):
         # Set null values for sem and cgpa if they don't exist in the request
         sem = data['sem'] if 'sem' in data else None
         cgpa = data['cgpa'] if 'cgpa' in data else None
 
-        sql = "INSERT INTO students (SRN, name, sem, section, cgpa) VALUES (%s, %s, %s, %s, %s)"
+        #sql = "INSERT INTO students (SRN, name, sem, section, cgpa) VALUES (%s, %s, %s, %s, %s)"
         val = (data['SRN'], data['name'], sem, data['section'], cgpa)
-        mysql_cursor.execute(sql, val)
-        db.commit()
-
+        
     # Function to handle incoming messages on the insert_record queue
     def callback(ch, method, properties, body):
         data = json.loads(body)
         # Check if SRN, name, and section fields are present in the request
-        if 'SRN' in data['data'] and 'name' in data['data'] and 'section' in data['data']:
-            insert_record(data['data'])
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-        else:
-            print('Error: Missing required fields')
+        # if 'SRN' in data['data'] and 'name' in data['data'] and 'section' in data['data']:
+        #     insert_record(data['data'])
+        #     ch.basic_ack(delivery_tag=method.delivery_tag)
+        # else:
+        #     print('Error: Missing required fields')
+        data = json.loads(body)
+        print("[x] Received %r" % data, flush=True)
+        collection.insert_one(data)
+        # time.sleep(body.count(b'.'))
+        # print(" [x] Done")
+        ch.basic_ack(delivery_tag = method.delivery_tag)
 
     # Set up consumer to take only one message at a time
     channel.basic_qos(prefetch_count=1)
@@ -58,6 +58,12 @@ def main():
 
 
 if __name__== "__main__":
-    main()        
-        
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Interrupted')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)        
 

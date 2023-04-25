@@ -1,6 +1,7 @@
 # specify ubuntu version (same as the one I'm using)
-FROM ubuntu:22.04 
-FROM python:3.10.6
-RUN apt-get update
+FROM python:3.10.6-slim
+WORKDIR /app
+COPY ./requirements.txt /app/requirements.txt
+COPY ./read.py /app/read.py
 RUN pip install -r requirements.txt
 CMD ["python","read.py"]

@@ -8,7 +8,7 @@ import http
 import pika, sys , os
 import mysql.connector
 import json
-
+import pymongo
 def main():
 
     def callback(ch,method,properties,body):
@@ -23,4 +23,11 @@ def main():
     channel.start_consuming()
 
 if __name__=="__main__":
-    main()    
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Interrupted')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)

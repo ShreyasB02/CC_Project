@@ -6,36 +6,43 @@ This consumer must delete a record from the database based on the SRN which has 
 
 import http
 import pika, sys , os
-import mysql.connector
+# import mysql.connector
 import json
+from pymongo import MongoClient
 
 
 def main():
-    db = mysql.connector.connect(
-        host = "localhost",
-        user = "root",
-        password ="password",
-        database= "cc_student"
-        )
-    cursor =db.cursor()
+    # db = mysql.connector.connect(
+    #     host = "localhost",
+    #     user = "root",
+    #     password ="password",
+    #     database= "cc_student"
+    #     )
+    # cursor =db.cursor()
+
+    # mongo:
+    client = MongoClient("mongodb://mongodb:27017")
+
+    db = client.StudentManagement
+    collection = db.students
 
     def deleteRecs(srn):
         try:
             delete_query = f"DELETE FROM student WHERE SRN='{srn}'"
-            cursor.execute(delete_query)
-            db.commit()
-            cursor.close()
-            db.close()
+            #cursor.execute(delete_query)
+            #db.commit()
+            #cursor.close()
+            #db.close()
             return True
         except:
             return False    
     def callback(ch,method,properties,body):
         # srn : recieved via queue
-        srn = body.decode()
-        if deleteRecs(srn):
-            print(f"Record with SRN {srn} deleted successfully.")
-        else:
-            print(f"Error deleting record with SRN {srn}.")
+        data = json.loads(body)
+        print("[x] Received %r" % data, flush=True)
+        print("Deleted Details: ", list(collection.delete_one(data)), flush=True)
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+
     connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq')) # give the network ip for the rabbitmq image
     channel = connection.channel()
     channel.queue_declare(queue='delete_record')
@@ -45,4 +52,12 @@ def main():
     channel.start_consuming()     
 
 if __name__ == "__main__":
-    main()       
+    if __name__ == '__main__':
+        try:
+            main()
+        except KeyboardInterrupt:
+            print('Interrupted')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)

@@ -11,14 +11,32 @@ import json
 app = Flask(__name__)
 
 # Establish a connection with RabbitMQ server
-connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
 channel = connection.channel()
+
+channel_health_check = connection.channel()
+channel_insertion = connection.channel()
+channel_deletion = connection.channel()
+channel_read = connection.channel()
 
 # Declare the queues
 channel.queue_declare(queue='health_check')
 channel.queue_declare(queue='insert_record')
 channel.queue_declare(queue='delete_record')
 channel.queue_declare(queue='read_database')
+
+
+@app.route("/", methods = ["GET"])
+def routes():
+    message = {
+        "to health check": "http://127.0.0.1:5050/health-check",
+        "to read data": "http://127.0.0.1:5050/read-database",
+        "to insert data": "http://127.0.0.1:5050/insert-record",
+        "to delete data": "http://127.0.0.1:5050/delete-record"
+    }
+    
+    return json.dumps(message, indent = 4)
+
 
 @app.route('/health_check', methods=['GET'])
 def health_check():
@@ -55,13 +73,15 @@ def insert_record():
 #                           routing_key='delete_record',
 #                           body=json.dumps(message))
 #     return f'Record with id {record_id} has been deleted'
-@app.route('/delete_record/<record_id>', methods=['GET'])
+@app.route('/delete_record', methods=['GET'])
 def delete_record(record_id):
     # Send a message to the delete_record queue
-    message = {'message': 'Delete Record', 'record_id': record_id}
+    args = request.args
+    # message = {'message': 'Delete Record', 'record_id': record_id}
+    message = json.dumps({"srn": args.get("srn")})
     channel.basic_publish(exchange='',
                           routing_key='delete_record',
-                          body=json.dumps(message))
+                          body=message)
     return f'Record with id {record_id} has been deleted'
 
 @app.route('/read_database', methods=['GET'])
@@ -74,4 +94,4 @@ def read_database():
     return 'Request to read database has been sent'
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5050)
