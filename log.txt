@@ -1,0 +1,3 @@
+#todo
+1) change the db container from mysql to mongodb
+2) change the request type in insertion.py (consumer_two). current input type: json ; change to: take in from url arg

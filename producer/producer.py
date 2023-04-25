@@ -55,7 +55,7 @@ def insert_record():
 #                           routing_key='delete_record',
 #                           body=json.dumps(message))
 #     return f'Record with id {record_id} has been deleted'
-@app.route('/delete_record/<string:record_id>', methods=['GET'])
+@app.route('/delete_record/<record_id>', methods=['GET'])
 def delete_record(record_id):
     # Send a message to the delete_record queue
     message = {'message': 'Delete Record', 'record_id': record_id}

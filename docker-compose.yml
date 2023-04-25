@@ -2,54 +2,67 @@ version: '3'
 
 services:
   rabbitmq:
-    image: rabbitmq:3.11.3
-    restart: always
+    container_name: "rabbitmq"
+    image: rabbitmq:3-management-alpine
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    
+    networks:
+      - rabbitmq_net
+    expose:
+      - "5672:5672"
+      - "15672:15672"  
     ports:
       - "15672:15672"
       - "5672:5672"
-    networks:
-      - rabbitmq_net
-
-  mysql:
-    image: mysql:8.0
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: cc_student
-      MYSQL_ROOT_USER: ss
-      MYSQL_PASSWORD: password
-    volumes:
-      - ./mysql_data:/var/lib/mysql
+
+
+  mongodb:
+    image: mongo
+    container_name: "mongodb"
+    restart: always
     ports:
-      - "3306:3306"
+      - "27017:27017"
+    expose:
+      - "27017:27017" 
     networks:
       - my_network
-  # producer:
-  #   build: ./producer    
+
+  # mysql:
+  #   image: mysql:8.0
+  #   restart: always
   #   environment:
-  #     - RABBITMQ_HOST=rabbitmq
-  #     - RABBITMQ_USER= guest
-  #     - RABBITMQ_PASS=guest
+  #     MYSQL_ROOT_PASSWORD: password
+  #     MYSQL_DATABASE: cc_student
+  #     MYSQL_ROOT_USER: ss
+  #     MYSQL_PASSWORD: password
   #   volumes:
-  #     - ./producer:/app 
-  #   working_dir: /producer
-  #   depends_on:
-  #     - rabbitmq  
+  #     - ./mysql_data:/var/lib/mysql
+  #   ports:
+  #     - "3306:3306"
   #   networks:
   #     - my_network
-  #     - rabbitmq_net
+  producer:
+    build: ./producer    
+    volumes:
+      - ./producer:/app 
+    working_dir: /producer
+    depends_on:
+      - rabbitmq  
+    ports:
+      - "5050:5050"
+    expose:
+      - "5050:5050"  
+    networks:
+      - my_network
+      - rabbitmq_net
+    restart: always
          
   consumer_one:
     build: ./consumer_one
     environment:
-      #- QUEUE_NAME=health_check
-      - MYSQL_HOST=mysql
-      - MYSQL_ROOT_USER=ss
-      - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=cc_student
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_USER=guest
       - RABBITMQ_PASS=guest
@@ -57,74 +70,55 @@ services:
     #   - ./consumer_one:/app
     # working_dir: /consumer_one
     depends_on:
-      - mysql
       - rabbitmq
     networks:
       - my_network
       - rabbitmq_net
 
-  # consumer_two:
-  #   build: ./consumer_two
-  #   environment:
-  #     #- QUEUE_NAME=insert_record
-  #     - MYSQL_HOST=mysql
-  #     - MYSQL_USER=root
-  #     - MYSQL_PASSWORD=password
-  #     - MYSQL_DATABASE=cc_student
-  #     - RABBITMQ_HOST=rabbitmq
-  #     - RABBITMQ_USER=guest
-  #     - RABBITMQ_PASS=guest
-  #   volumes:
-  #     - ./consumer_two:/app
-  #   working_dir: /consumer_two  
-  #   depends_on:
-  #     - mysql
-  #     - rabbitmq
-  #   networks:
-  #     - my_network
-  #     - rabbitmq_net
+  consumer_two:
+    build: ./consumer_two
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+    # volumes:
+    #   - ./consumer_two:/app
+    # working_dir: /consumer_two  
+    depends_on:
+      - rabbitmq
+    networks:
+      - my_network
+      - rabbitmq_net
 
-  # consumer_three:
-  #   build: ./consumer_three
-  #   environment:
-  #     # - QUEUE_NAME=delete_record
-  #     - MYSQL_HOST=mysql
-  #     - MYSQL_USER=root
-  #     - MYSQL_PASSWORD=password
-  #     - MYSQL_DATABASE=cc_student
-  #     - RABBITMQ_HOST=rabbitmq
-  #     - RABBITMQ_USER=guest
-  #     - RABBITMQ_PASS=guest
-  #   volumes:
-  #     - ./consumer_three:/consumer_three
-  #   working_dir: /consumer_three
-  #   depends_on:
-  #     - mysql
-  #     - rabbitmq
-  #   networks:
-  #     - my_network
-  #     - rabbitmq_net
+  consumer_three:
+    build: ./consumer_three
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+    # volumes:
+    #   - ./consumer_three:/consumer_three
+    # working_dir: /consumer_three
+    depends_on:
+      - rabbitmq
+    networks:
+      - my_network
+      - rabbitmq_net
 
-  # consumer_four:
-  #   build: ./consumer_four
-  #   environment:
-  #     # - QUEUE_NAME=read_database
-  #     - MYSQL_HOST=mysql
-  #     - MYSQL_USER=root
-  #     - MYSQL_PASSWORD=password
-  #     - MYSQL_DATABASE=cc_student
-  #     - RABBITMQ_HOST=rabbitmq
-  #     - RABBITMQ_USER=guest
-  #     - RABBITMQ_PASS=guest
-  #   volumes:
-  #     - ./consumer_four:/app
-  #   working_dir: /consumer_four  
-  #   depends_on:
-  #     - mysql
-  #     - rabbitmq
-  #   networks:
-  #     - my_network
-  #     - rabbitmq_net
+  consumer_four:
+    build: ./consumer_four
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+    # volumes:
+    #   - ./consumer_four:/app
+    # working_dir: /consumer_four  
+    depends_on:
+     - rabbitmq
+    networks:
+      - my_network
+      - rabbitmq_net
 
 networks:
   my_network:
