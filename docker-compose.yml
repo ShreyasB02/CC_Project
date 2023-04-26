@@ -4,9 +4,9 @@ services:
   rabbitmq:
     container_name: "rabbitmq"
     image: rabbitmq:3-management
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+    # environment:
+    #   RABBITMQ_DEFAULT_USER: guest
+    #   RABBITMQ_DEFAULT_PASS: guest
     
     networks:
       - rabbitmq_net
@@ -17,13 +17,13 @@ services:
     #   - "5672:5672"
     #   - "15672:15672"  
 
-    restart: always
+    #restart: always
 
 
   mongodb:
     image: mongo
     container_name: "mongodb"
-    restart: always
+    #restart: always
     ports:
       - "27017:27017"
     # expose:
@@ -45,6 +45,80 @@ services:
   #     - "3306:3306"
   #   networks:
   #     - my_network
+
+         
+  consumer_one:
+    build: ./consumer_one
+    # environment:
+    #   - RABBITMQ_HOST=rabbitmq
+    #   - RABBITMQ_USER=guest
+    #   - RABBITMQ_PASS=guest
+    # volumes:
+    #   - ./consumer_one:/app
+    # working_dir: /consumer_one
+    depends_on:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1  
+    networks:
+      - my_network
+      - rabbitmq_net
+    restart: always
+
+  consumer_two:
+    build: ./consumer_two
+    # environment:
+    #   - RABBITMQ_HOST=rabbitmq
+    #   - RABBITMQ_USER=guest
+    #   - RABBITMQ_PASS=guest
+    # volumes:
+    #   - ./consumer_two:/app
+    # working_dir: /consumer_two  
+    depends_on:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1  
+    networks:
+      - my_network
+      - rabbitmq_net
+    restart: always  
+
+  consumer_three:
+    build: ./consumer_three
+    # environment:
+    #   - RABBITMQ_HOST=rabbitmq
+    #   - RABBITMQ_USER=guest
+    #   - RABBITMQ_PASS=guest
+    # volumes:
+    #   - ./consumer_three:/consumer_three
+    # working_dir: /consumer_three
+    depends_on:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1  
+    networks:
+      - my_network
+      - rabbitmq_net
+    restart: always  
+
+  consumer_four:
+    build: ./consumer_four
+    # environment:
+    #   - RABBITMQ_HOST=rabbitmq
+    #   - RABBITMQ_USER=guest
+    #   - RABBITMQ_PASS=guest
+    # volumes:
+    #   - ./consumer_four:/app
+    # working_dir: /consumer_four  
+    depends_on:
+     - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1 
+    networks:
+      - my_network
+      - rabbitmq_net
+    restart: always 
+
   producer:
     build: ./producer    
     # volumes:
@@ -59,67 +133,7 @@ services:
     networks:
       - my_network
       - rabbitmq_net
-    restart: always
-         
-  consumer_one:
-    build: ./consumer_one
-    # environment:
-    #   - RABBITMQ_HOST=rabbitmq
-    #   - RABBITMQ_USER=guest
-    #   - RABBITMQ_PASS=guest
-    # volumes:
-    #   - ./consumer_one:/app
-    # working_dir: /consumer_one
-    depends_on:
-      - rabbitmq
-    networks:
-      - my_network
-      - rabbitmq_net
-
-  consumer_two:
-    build: ./consumer_two
-    # environment:
-    #   - RABBITMQ_HOST=rabbitmq
-    #   - RABBITMQ_USER=guest
-    #   - RABBITMQ_PASS=guest
-    # volumes:
-    #   - ./consumer_two:/app
-    # working_dir: /consumer_two  
-    depends_on:
-      - rabbitmq
-    networks:
-      - my_network
-      - rabbitmq_net
-
-  consumer_three:
-    build: ./consumer_three
-    # environment:
-    #   - RABBITMQ_HOST=rabbitmq
-    #   - RABBITMQ_USER=guest
-    #   - RABBITMQ_PASS=guest
-    # volumes:
-    #   - ./consumer_three:/consumer_three
-    # working_dir: /consumer_three
-    depends_on:
-      - rabbitmq
-    networks:
-      - my_network
-      - rabbitmq_net
-
-  consumer_four:
-    build: ./consumer_four
-    # environment:
-    #   - RABBITMQ_HOST=rabbitmq
-    #   - RABBITMQ_USER=guest
-    #   - RABBITMQ_PASS=guest
-    # volumes:
-    #   - ./consumer_four:/app
-    # working_dir: /consumer_four  
-    depends_on:
-     - rabbitmq
-    networks:
-      - my_network
-      - rabbitmq_net
+    #restart: always
 
 networks:
   my_network:

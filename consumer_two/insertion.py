@@ -9,18 +9,22 @@ This consumer must acknowledge that the health-check message has been listened t
 
 import json
 import pika
-import sys,os
-from pymongo import MongoClient
+import sys,os,time
+from pymongo.mongo_client import MongoClient
+import certifi
 
 def main():
+    # wait for rmq to boot up
+    sleepTime = 20
+    time.sleep(sleepTime)
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
     channel = connection.channel()
-    channel.queue_declare(queue='insert_record')
-    connectionstr="mongodb+srv://shreyas14902:<password>@cc-cluster.kdd2lot.mongodb.net/?retryWrites=true&w=majority"
-    client = MongoClient(connectionstr)
+    channel.queue_declare(queue='insert_record',durable=True)
+    connectionstr="mongodb+srv://shreyas14902:<password>@cc-cluster.kdd2lot.mongodb.net/test"
+    client = MongoClient(connectionstr,tlsCAFile=certifi.where())
 
-    db = client.StudentManagement
-    collection = db.students
+    db = client['StudentManagement']
+    collection = db["students"]
     
     # Function to insert a record into the database
     def insert_record(data):
@@ -33,19 +37,16 @@ def main():
         
     # Function to handle incoming messages on the insert_record queue
     def callback(ch, method, properties, body):
-        data = json.loads(body)
-        # Check if SRN, name, and section fields are present in the request
-        # if 'SRN' in data['data'] and 'name' in data['data'] and 'section' in data['data']:
-        #     insert_record(data['data'])
-        #     ch.basic_ack(delivery_tag=method.delivery_tag)
-        # else:
-        #     print('Error: Missing required fields')
-        data = json.loads(body)
-        print("[x] Received %r" % data, flush=True)
-        collection.insert_one(data)
-        # time.sleep(body.count(b'.'))
-        # print(" [x] Done")
-        ch.basic_ack(delivery_tag = method.delivery_tag)
+        b = body.decode()
+        b1 = b.split(".")
+        x = b1[0]
+        y = b1[1]
+        z = b1[2]
+        dict1 = {"SRN": x,"Name":y,"Section":z}
+        collection.insert_one(dict1)
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        print("Debuuuugggg")
+        return "Student saved successfully!"
 
     # Set up consumer to take only one message at a time
     #channel.basic_qos(prefetch_count=1)

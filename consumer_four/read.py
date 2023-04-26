@@ -4,7 +4,7 @@ This consumer must retrieve all the records present in the database.
 '''
 
 import http
-import pika, sys , os
+import pika, sys , os,time
 # import mysql.connector
 from pymongo import MongoClient
 import json #incase we need to send the data
@@ -19,28 +19,31 @@ def main():
     #     database= "cc_student"
     #     )
     # cursor =db.cursor()
-    connectionstr="mongodb+srv://shreyas14902:<password>@cc-cluster.kdd2lot.mongodb.net/?retryWrites=true&w=majority"
+    connectionstr="mongodb+srv://shreyas14902:mongopassword@cc-cluster.kdd2lot.mongodb.net/test"
     client = MongoClient(connectionstr)
 
     db = client.StudentManagement
     collection = db.students
-    def callback(ch,method,properties,body):
-        # cursor.execute("SELECT * FROM student") #create student column in db
-        # records = cursor.fetchall()
-        # response= json.dumps(records)
-        #if retrieved data to be published
-        # ch.basic_publish(
-        #     exchange='',
-        #     routing_key=properties.reply_to,
-        #     properties=pika.BasicProperties(correlation_id=properties.correlation_id),
-        #     body=response)
-        print("Found Details: ", list(collection.find({})), flush=True)
+    def callback(ch, method, properties, body):
+        ans = collection.find({})
+        for document in ans:
+            print(document)
+    # ch.basic_publish(
+    #     exchange='',
+    #     routing_key=properties.reply_to,
+    #     properties=pika.BasicProperties(correlation_id=properties.correlation_id),
+    #     body=json.dumps(result)
+    # )
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return "Database read"
 
 
-
+    sleepTime = 20
+    time.sleep(sleepTime)
+    print('Consumer_four connecting to server ...')
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
     channel = connection.channel()
-    channel.queue_declare(queue='read_database')
+    channel.queue_declare(queue='read_database', durable=True)
         #handle 1 message at a time:
     #channel.basic_qos(prefetch_count=1)
     channel.basic_consume(queue='read_database', on_message_callback=callback, auto_ack=True)  #ACk
