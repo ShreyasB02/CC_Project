@@ -20,11 +20,12 @@ def main():
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
     channel = connection.channel()
     channel.queue_declare(queue='insert_record',durable=True)
-    connectionstr="mongodb+srv://shreyas14902:<password>@cc-cluster.kdd2lot.mongodb.net/test"
-    client = MongoClient(connectionstr,tlsCAFile=certifi.where())
+    connectionstr="mongodb+srv://ccrmq:ccrmq@cluster0.s2ksf4g.mongodb.net/test"
+    client = MongoClient(connectionstr)
 
-    db = client['StudentManagement']
-    collection = db["students"]
+    db = client['studentdb']
+    collection = db['student']
+
     
     # Function to insert a record into the database
     def insert_record(data):

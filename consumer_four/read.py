@@ -19,11 +19,11 @@ def main():
     #     database= "cc_student"
     #     )
     # cursor =db.cursor()
-    connectionstr="mongodb+srv://shreyas14902:mongopassword@cc-cluster.kdd2lot.mongodb.net/test"
+    connectionstr="mongodb+srv://ccrmq:ccrmq@cluster0.s2ksf4g.mongodb.net/test"
     client = MongoClient(connectionstr)
 
-    db = client.StudentManagement
-    collection = db.students
+    db = client['studentdb']
+    collection = db['student']
     def callback(ch, method, properties, body):
         ans = collection.find({})
         for document in ans:
@@ -46,7 +46,7 @@ def main():
     channel.queue_declare(queue='read_database', durable=True)
         #handle 1 message at a time:
     #channel.basic_qos(prefetch_count=1)
-    channel.basic_consume(queue='read_database', on_message_callback=callback, auto_ack=True)  #ACk
+    channel.basic_consume(queue='read_database', on_message_callback=callback)  #ACk
     channel.start_consuming()
 
 

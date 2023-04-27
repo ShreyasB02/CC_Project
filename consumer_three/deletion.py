@@ -21,11 +21,11 @@ def main():
     # cursor =db.cursor()
 
     # mongo:
-    connectionstr="mongodb+srv://shreyas14902:<password>@cc-cluster.kdd2lot.mongodb.net/test"
+    connectionstr="mongodb+srv://ccrmq:ccrmq@cluster0.s2ksf4g.mongodb.net/test"
     client = MongoClient(connectionstr)
 
-    db = client['StudentManagement']
-    collection = db['students']
+    db = client['studentdb']
+    collection = db['student']
 
     def deleteRecs(srn):
         try:
