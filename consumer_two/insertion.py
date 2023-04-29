@@ -20,7 +20,7 @@ def main():
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
     channel = connection.channel()
     channel.queue_declare(queue='insert_record',durable=True)
-    connectionstr="mongodb+srv://ccrmq:ccrmq@cluster0.s2ksf4g.mongodb.net/test"
+    connectionstr=""
     client = MongoClient(connectionstr)
 
     db = client['studentdb']
