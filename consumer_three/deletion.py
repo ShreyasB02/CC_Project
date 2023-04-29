@@ -21,7 +21,7 @@ def main():
     # cursor =db.cursor()
 
     # mongo:
-    connectionstr="mongodb+srv://ccrmq:ccrmq@cluster0.s2ksf4g.mongodb.net/test"
+    connectionstr=""
     client = MongoClient(connectionstr)
 
     db = client['studentdb']
