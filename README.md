@@ -1,4 +1,4 @@
-# cc-microservices-comms
+# Microservices-Comms
 Mini project for the course "Cloud Computing". The task is to setup a few microservices via docker containers and have them intercommunicate via rabbitmq
 ## FUNCTIONALITIES:
 * **Rabbitmq** : Runs a rabbitmq image,pulled from the official docker repository.
